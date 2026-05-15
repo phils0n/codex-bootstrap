@@ -5,7 +5,7 @@ Public first-hop bootstrap for `phils0n/dotfiles`.
 Run on a new Mac:
 
 ```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/phils0n/codex-bootstrap/main/bootstrap.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/phils0n/codex-bootstrap/main/bootstrap.sh)"
 ```
 
 What it does:

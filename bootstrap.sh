@@ -4,14 +4,18 @@
 
 set -euo pipefail
 
+export HOMEBREW_NO_AUTO_UPDATE="${HOMEBREW_NO_AUTO_UPDATE:-1}"
+export HOMEBREW_NO_ENV_HINTS="${HOMEBREW_NO_ENV_HINTS:-1}"
+export HOMEBREW_NO_INSTALL_CLEANUP="${HOMEBREW_NO_INSTALL_CLEANUP:-1}"
+
 CYAN='\033[0;36m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 RED='\033[0;31m'; BOLD='\033[1m'; NC='\033[0m'
 
-info()    { echo -e "${CYAN}[bootstrap]${NC} $*"; }
-success() { echo -e "${GREEN}[✓]${NC}          $*"; }
-warn()    { echo -e "${YELLOW}[warn]${NC}       $*"; }
-error()   { echo -e "${RED}[error]${NC}      $*"; exit 1; }
-step()    { echo -e "\n${BOLD}── $* ──${NC}"; }
+info()    { printf '%b\n' "${CYAN}[bootstrap]${NC} $*"; }
+success() { printf '%b\n' "${GREEN}[✓]${NC}          $*"; }
+warn()    { printf '%b\n' "${YELLOW}[warn]${NC}       $*"; }
+error()   { printf '%b\n' "${RED}[error]${NC}      $*"; exit 1; }
+step()    { printf '\n%b\n' "${BOLD}── $* ──${NC}"; }
 
 DOTFILES_OWNER="${DOTFILES_OWNER:-phils0n}"
 DOTFILES_REPO="${DOTFILES_REPO:-dotfiles}"
@@ -43,20 +47,19 @@ ensure_homebrew() {
   success "Homebrew installed"
 }
 
-brew_install_or_upgrade() {
+brew_ensure() {
   local formula="$1"
   local binary="$2"
   local label="$3"
 
   if command -v "$binary" &>/dev/null; then
-    info "Updating $label..."
-    brew upgrade "$formula" || true
+    success "$label present"
   else
     info "Installing $label..."
     brew install "$formula"
+    hash -r
+    command -v "$binary" &>/dev/null && success "$label ready" || error "$label install failed"
   fi
-  hash -r
-  command -v "$binary" &>/dev/null && success "$label ready" || error "$label install failed"
 }
 
 github_auth_ok() {
@@ -101,7 +104,7 @@ ensure_chezmoi() {
   if command -v chezmoi &>/dev/null; then
     success "chezmoi $(chezmoi --version | awk '{print $3}' | head -1)"
   else
-    brew_install_or_upgrade "chezmoi" "chezmoi" "chezmoi"
+    brew_ensure "chezmoi" "chezmoi" "chezmoi"
   fi
 }
 
@@ -123,9 +126,9 @@ apply_dotfiles() {
 step "Codex bootstrap"
 
 ensure_homebrew
-brew_install_or_upgrade "git" "git" "Git"
-brew_install_or_upgrade "node" "node" "Node.js"
-brew_install_or_upgrade "gh" "gh" "GitHub CLI"
+brew_ensure "git" "git" "Git"
+brew_ensure "node" "node" "Node.js"
+brew_ensure "gh" "gh" "GitHub CLI"
 ensure_github_auth
 ensure_chezmoi
 apply_dotfiles

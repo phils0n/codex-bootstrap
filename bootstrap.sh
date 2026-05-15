@@ -24,7 +24,29 @@ DOTFILES_SSH="git@github.com:${DOTFILES_OWNER}/${DOTFILES_REPO}.git"
 run_quick() {
   local seconds="$1"
   shift
-  perl -e 'alarm shift @ARGV; exec @ARGV' "$seconds" "$@" &>/dev/null
+  if command -v perl &>/dev/null; then
+    perl -e '
+      my $timeout = shift @ARGV;
+      my $pid = fork();
+      die "fork failed: $!\n" unless defined $pid;
+      if ($pid == 0) {
+        exec @ARGV or exit 127;
+      }
+      local $SIG{ALRM} = sub {
+        kill "TERM", $pid;
+        select undef, undef, undef, 0.5;
+        kill "KILL", $pid;
+        exit 124;
+      };
+      alarm $timeout;
+      waitpid($pid, 0);
+      my $status = $?;
+      my $code = ($status == -1) ? 127 : (($status & 127) ? 128 + ($status & 127) : ($status >> 8));
+      exit $code;
+    ' "$seconds" "$@" &>/dev/null
+  else
+    "$@" &>/dev/null
+  fi
 }
 
 ensure_homebrew() {

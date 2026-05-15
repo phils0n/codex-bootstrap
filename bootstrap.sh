@@ -108,6 +108,10 @@ ensure_chezmoi() {
 apply_dotfiles() {
   step "Applying Codex dotfiles"
 
+  if [ "${BOOTSTRAP_SKIP_AUTH:-}" = "1" ]; then
+    export SETUP_SKIP_AUTH=1
+  fi
+
   if github_ssh_ok; then
     chezmoi init --apply --ssh "$DOTFILES_OWNER"
   else

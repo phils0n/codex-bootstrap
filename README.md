@@ -152,7 +152,7 @@ By default it writes:
 ralph/review-findings.md
 ```
 
-That file is the handoff artifact for the next session.
+The shell command launches Codex with this instruction; the file appears after the review session finishes. That file is the handoff artifact for the next session.
 
 Pure read-only review:
 

@@ -58,7 +58,25 @@ Use this after workflow helper changes.
 | `sbx-yolo --check` | Verify Docker Sandboxes is usable |
 | `yolo-kickoff` | Start sandboxed full-auto Codex environment |
 
-## 4. Start a New Project
+## 4. What The Commands Do Underneath
+
+You normally type the short commands. The skill names below are what those commands hide.
+
+| Command | Underneath |
+|---|---|
+| `codex-kickoff` | Starts `codex -p local` with `Use the kickoff skill for this repo...` |
+| `kickoff` skill | Runs repo inspection, then `setup-matt-pocock-skills` if project agent docs are missing |
+| `kickoff` skill | Continues into `grill-with-docs` when the project/domain needs interview and `CONTEXT.md` work |
+| `kickoff` skill | Moves into `spec-driven-development`, issue planning, and task breakdown when direction is clear |
+| `codex-afk` | Starts Codex with an AFK prompt that resolves `.scratch/*/issues/*.md` using one subagent at a time |
+| `codex-review` | Starts Codex with `code-review-and-quality`, reviews specs/PRD/issues, runs checks, saves `ralph/review-findings.md` |
+| `codex-fix-issues` | Converts `ralph/review-findings.md` or fresh review findings into `.scratch/*/review-fixes/*.md` |
+| `yolo-kickoff` | Starts Docker Sandboxes through `sbx-yolo`; inside the sandbox you run `codex --profile yolo` then `$kickoff` |
+| `codex-upgrade` | Runs `chezmoi update --apply` to pull the latest private dotfiles workflow |
+
+So in normal use, you do not type `grill-me` or `grill-with-docs`. For repo work, `codex-kickoff` routes into `grill-with-docs` through the hidden `kickoff` skill when that phase is needed.
+
+## 5. Start a New Project
 
 Create or open the project folder:
 
@@ -91,7 +109,7 @@ Expected output from the kickoff phase:
 
 If Codex asks questions, answer them in the same session. It should resolve obvious MVP decisions itself and only ask for user-dependent choices.
 
-## 5. Implement Issues
+## 6. Implement Issues
 
 After kickoff has created issue files:
 
@@ -122,7 +140,7 @@ What `codex-afk` does:
 
 It should not push or publish.
 
-## 6. Review Completed Work
+## 7. Review Completed Work
 
 After AFK says no tasks remain:
 
@@ -166,7 +184,7 @@ Custom review output:
 codex-review --out ralph/review-findings-round-2.md
 ```
 
-## 7. Turn Review Findings Into Fix Issues
+## 8. Turn Review Findings Into Fix Issues
 
 If review finds problems:
 
@@ -202,7 +220,7 @@ codex-review
 
 Repeat until review has no blocking findings.
 
-## 8. Full Loop
+## 9. Full Loop
 
 Typical project loop:
 
@@ -223,7 +241,7 @@ codex-afk --issues ".scratch/*/review-fixes/*.md"
 codex-review
 ```
 
-## 9. Git Save Points
+## 10. Git Save Points
 
 Use git as the safety net. If the repo is not initialized yet:
 
@@ -260,7 +278,7 @@ Create a private GitHub repo and push:
 gh repo create my-project --private --source=. --remote=origin --push
 ```
 
-## 10. Ship
+## 11. Ship
 
 Before shipping:
 
@@ -285,7 +303,7 @@ Minimum ship checklist:
 - deploy target is chosen
 - rollback plan exists
 
-## 11. Sandbox Flow
+## 12. Sandbox Flow
 
 Use sandbox mode when you want a stronger safety boundary:
 
@@ -309,7 +327,7 @@ codex-afk
 codex-review
 ```
 
-## 12. Troubleshooting
+## 13. Troubleshooting
 
 Show all commands:
 
@@ -346,7 +364,7 @@ chezmoi diff
 chezmoi update --apply
 ```
 
-## 13. One-Line Reference
+## 14. One-Line Reference
 
 New machine:
 

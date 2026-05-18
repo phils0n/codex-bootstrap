@@ -80,7 +80,7 @@ You normally type the short commands. The skill names below are what those comma
 | `codex-stabilize` | Runs each phase in a fresh `codex exec --ephemeral` session until review has no Critical/High findings or the cap is reached |
 | `codex-ship` | Starts Codex with `shipping-and-launch`, checks launch readiness, saves `ralph/ship-readiness.md`, and does not deploy |
 | `codex-release-prep` | Uses the ship report to create or update README, `.gitignore`, `.env.example`, deploy docs, verification docs, and release checklist |
-| `codex-release-baseline` | Runs git init/add/commit after checking staged file names for obvious secrets; pushes only with explicit `--push` |
+| `codex-release-baseline` | Runs git init/add/commit after checking staged file names for obvious secrets; `codex-ready` runs this automatically, and pushes only with explicit `--push` |
 | `yolo-kickoff` | Starts Docker Sandboxes through `sbx-yolo`; inside the sandbox you run `codex --profile yolo` then `$kickoff` |
 | `codex-upgrade` | Runs `chezmoi update --apply` to pull the latest private dotfiles workflow |
 
@@ -368,13 +368,13 @@ codex-ship
 
 `codex-release-prep` does not commit, push, create remotes, run `npm audit`, deploy, create cloud resources, or spend money without explicit approval.
 
-If the blockers are no committed baseline, no git repo, or all files untracked, run:
+If the blockers are no committed baseline, no git repo, or all files untracked, the normal path is:
 
 ```bash
-codex-release-baseline
+codex-ready
 ```
 
-For a non-interactive local baseline:
+For the lower-level baseline command:
 
 ```bash
 codex-release-baseline --yes

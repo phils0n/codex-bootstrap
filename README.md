@@ -56,6 +56,7 @@ Use this after workflow helper changes.
 | `codex-fix-issues` | Convert review findings into ready fix issues |
 | `codex-stabilize` | Run bounded fresh-session review/fix/AFK loops |
 | `codex-ship` | Prepare launch readiness and save a ship checklist |
+| `codex-release-prep` | Fix automatable release docs after ship reports release/environment blockers |
 | `codex-upgrade` | Pull and apply latest dotfiles |
 | `sbx-yolo --check` | Verify Docker Sandboxes is usable |
 | `yolo-kickoff` | Start sandboxed full-auto Codex environment |
@@ -75,6 +76,7 @@ You normally type the short commands. The skill names below are what those comma
 | `codex-fix-issues` | Converts `ralph/review-findings.md` or fresh review findings into `.scratch/*/review-fixes/*.md` |
 | `codex-stabilize` | Runs each phase in a fresh `codex exec --ephemeral` session until review has no Critical/High findings or the cap is reached |
 | `codex-ship` | Starts Codex with `shipping-and-launch`, checks launch readiness, saves `ralph/ship-readiness.md`, and does not deploy |
+| `codex-release-prep` | Uses the ship report to create or update README, `.env.example`, deploy docs, verification docs, and release checklist |
 | `yolo-kickoff` | Starts Docker Sandboxes through `sbx-yolo`; inside the sandbox you run `codex --profile yolo` then `$kickoff` |
 | `codex-upgrade` | Runs `chezmoi update --apply` to pull the latest private dotfiles workflow |
 
@@ -273,6 +275,8 @@ codex-kickoff
 codex-afk
 codex-stabilize
 codex-ship
+codex-release-prep
+codex-ship
 ```
 
 If the final review still finds issues, repeat:
@@ -343,6 +347,15 @@ It checks README, env requirements, migrations, tests, deploy steps, monitoring,
 It does **not** deploy, push, publish, create cloud resources, run Terraform apply, or spend money without explicit approval.
 
 `codex-ship` can still say `not ready` after `codex-stabilize` passes. That usually means the remaining blockers are release/environment blockers, not AFK implementation blockers: missing git baseline, missing secrets, unavailable network, unavailable provider registry, missing local services, or no deploy target.
+
+If the blockers are missing README, `.env.example`, deploy docs, verification docs, or release checklist, run:
+
+```bash
+codex-release-prep
+codex-ship
+```
+
+`codex-release-prep` does not commit, push, create remotes, run `npm audit`, deploy, create cloud resources, or spend money without explicit approval.
 
 Minimum ship checklist:
 
@@ -452,6 +465,8 @@ Review and fix:
 
 ```bash
 codex-stabilize
+codex-ship
+codex-release-prep
 codex-ship
 ```
 

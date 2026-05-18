@@ -57,6 +57,7 @@ Use this after workflow helper changes.
 | `codex-stabilize` | Run bounded fresh-session review/fix/AFK loops |
 | `codex-ship` | Prepare launch readiness and save a ship checklist |
 | `codex-release-prep` | Fix automatable release docs after ship reports release/environment blockers |
+| `codex-release-baseline` | Create the local git baseline, with optional remote and push |
 | `codex-upgrade` | Pull and apply latest dotfiles |
 | `sbx-yolo --check` | Verify Docker Sandboxes is usable |
 | `yolo-kickoff` | Start sandboxed full-auto Codex environment |
@@ -76,7 +77,8 @@ You normally type the short commands. The skill names below are what those comma
 | `codex-fix-issues` | Converts `ralph/review-findings.md` or fresh review findings into `.scratch/*/review-fixes/*.md` |
 | `codex-stabilize` | Runs each phase in a fresh `codex exec --ephemeral` session until review has no Critical/High findings or the cap is reached |
 | `codex-ship` | Starts Codex with `shipping-and-launch`, checks launch readiness, saves `ralph/ship-readiness.md`, and does not deploy |
-| `codex-release-prep` | Uses the ship report to create or update README, `.env.example`, deploy docs, verification docs, and release checklist |
+| `codex-release-prep` | Uses the ship report to create or update README, `.gitignore`, `.env.example`, deploy docs, verification docs, and release checklist |
+| `codex-release-baseline` | Runs git init/add/commit after checking staged file names for obvious secrets; pushes only with explicit `--push` |
 | `yolo-kickoff` | Starts Docker Sandboxes through `sbx-yolo`; inside the sandbox you run `codex --profile yolo` then `$kickoff` |
 | `codex-upgrade` | Runs `chezmoi update --apply` to pull the latest private dotfiles workflow |
 
@@ -276,6 +278,7 @@ codex-afk
 codex-stabilize
 codex-ship
 codex-release-prep
+codex-release-baseline
 codex-ship
 ```
 
@@ -348,7 +351,7 @@ It does **not** deploy, push, publish, create cloud resources, run Terraform app
 
 `codex-ship` can still say `not ready` after `codex-stabilize` passes. That usually means the remaining blockers are release/environment blockers, not AFK implementation blockers: missing git baseline, missing secrets, unavailable network, unavailable provider registry, missing local services, or no deploy target.
 
-If the blockers are missing README, `.env.example`, deploy docs, verification docs, or release checklist, run:
+If the blockers are missing README, `.gitignore`, `.env.example`, deploy docs, verification docs, or release checklist, run:
 
 ```bash
 codex-release-prep
@@ -356,6 +359,26 @@ codex-ship
 ```
 
 `codex-release-prep` does not commit, push, create remotes, run `npm audit`, deploy, create cloud resources, or spend money without explicit approval.
+
+If the blockers are no committed baseline, no git repo, or all files untracked, run:
+
+```bash
+codex-release-baseline
+```
+
+For a non-interactive local baseline:
+
+```bash
+codex-release-baseline --yes
+```
+
+To add an existing remote and push:
+
+```bash
+codex-release-baseline --remote git@github.com:USER/REPO.git --push
+```
+
+This still does not create the GitHub repo for you. Create it first with `gh repo create` or the GitHub UI.
 
 Minimum ship checklist:
 
@@ -467,6 +490,7 @@ Review and fix:
 codex-stabilize
 codex-ship
 codex-release-prep
+codex-release-baseline
 codex-ship
 ```
 

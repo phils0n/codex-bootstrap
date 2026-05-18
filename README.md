@@ -74,7 +74,7 @@ You normally type the short commands. The skill names below are what those comma
 | `kickoff` skill | Continues into `grill-with-docs` when the project/domain needs interview and `CONTEXT.md` work |
 | `kickoff` skill | Moves into `spec-driven-development`, issue planning, and task breakdown when direction is clear |
 | `codex-afk` | Starts Codex with an AFK prompt that resolves `.scratch/*/issues/*.md` using one subagent at a time |
-| `codex-ready` | Runs stabilize, ship, release prep, release baseline, then ship again; continues past expected `not ready` ship gates |
+| `codex-ready` | Runs stabilize, ship, release prep, release baseline, ship again, then baselines final readiness artifacts; continues past expected `not ready` ship gates |
 | `codex-review` | Starts Codex with `code-review-and-quality`, reviews specs/PRD/issues, runs checks, saves `ralph/review-findings.md` |
 | `codex-fix-issues` | Converts `ralph/review-findings.md` or fresh review findings into `.scratch/*/review-fixes/*.md` |
 | `codex-stabilize` | Runs each phase in a fresh `codex exec --ephemeral` session until review has no Critical/High findings or the cap is reached |
@@ -288,6 +288,7 @@ codex-ship
 codex-release-prep
 codex-release-baseline
 codex-ship
+codex-release-baseline
 ```
 
 If the final review still finds issues, repeat:

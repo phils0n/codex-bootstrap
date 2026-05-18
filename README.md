@@ -52,6 +52,7 @@ Use this after workflow helper changes.
 | `codex-workflow --help` | Show the full command menu |
 | `codex-kickoff` | Start repo setup, grilling, spec, and issue creation |
 | `codex-afk` | Implement ready issue files with one subagent at a time |
+| `codex-ready` | Run the normal post-AFK path toward ship readiness |
 | `codex-review` | Review completed work and save findings |
 | `codex-fix-issues` | Convert review findings into ready fix issues |
 | `codex-stabilize` | Run bounded fresh-session review/fix/AFK loops |
@@ -73,6 +74,7 @@ You normally type the short commands. The skill names below are what those comma
 | `kickoff` skill | Continues into `grill-with-docs` when the project/domain needs interview and `CONTEXT.md` work |
 | `kickoff` skill | Moves into `spec-driven-development`, issue planning, and task breakdown when direction is clear |
 | `codex-afk` | Starts Codex with an AFK prompt that resolves `.scratch/*/issues/*.md` using one subagent at a time |
+| `codex-ready` | Runs stabilize, ship, release prep, release baseline, then ship again; stops at manual gates |
 | `codex-review` | Starts Codex with `code-review-and-quality`, reviews specs/PRD/issues, runs checks, saves `ralph/review-findings.md` |
 | `codex-fix-issues` | Converts `ralph/review-findings.md` or fresh review findings into `.scratch/*/review-fixes/*.md` |
 | `codex-stabilize` | Runs each phase in a fresh `codex exec --ephemeral` session until review has no Critical/High findings or the cap is reached |
@@ -275,6 +277,12 @@ Typical project loop:
 ```bash
 codex-kickoff
 codex-afk
+codex-ready
+```
+
+`codex-ready` expands to the lower-level gates:
+
+```bash
 codex-stabilize
 codex-ship
 codex-release-prep
@@ -487,11 +495,7 @@ codex-afk
 Review and fix:
 
 ```bash
-codex-stabilize
-codex-ship
-codex-release-prep
-codex-release-baseline
-codex-ship
+codex-ready
 ```
 
 Upgrade workflow:

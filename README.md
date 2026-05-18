@@ -54,6 +54,7 @@ Use this after workflow helper changes.
 | `codex-afk` | Implement ready issue files with one subagent at a time |
 | `codex-review` | Review completed work and save findings |
 | `codex-fix-issues` | Convert review findings into ready fix issues |
+| `codex-stabilize` | Run bounded fresh-session review/fix/AFK loops |
 | `codex-ship` | Prepare launch readiness and save a ship checklist |
 | `codex-upgrade` | Pull and apply latest dotfiles |
 | `sbx-yolo --check` | Verify Docker Sandboxes is usable |
@@ -72,6 +73,7 @@ You normally type the short commands. The skill names below are what those comma
 | `codex-afk` | Starts Codex with an AFK prompt that resolves `.scratch/*/issues/*.md` using one subagent at a time |
 | `codex-review` | Starts Codex with `code-review-and-quality`, reviews specs/PRD/issues, runs checks, saves `ralph/review-findings.md` |
 | `codex-fix-issues` | Converts `ralph/review-findings.md` or fresh review findings into `.scratch/*/review-fixes/*.md` |
+| `codex-stabilize` | Runs each phase in a fresh `codex exec --ephemeral` session: review, create fix issues, AFK fixes, repeat, final review |
 | `codex-ship` | Starts Codex with `shipping-and-launch`, checks launch readiness, saves `ralph/ship-readiness.md`, and does not deploy |
 | `yolo-kickoff` | Starts Docker Sandboxes through `sbx-yolo`; inside the sandbox you run `codex --profile yolo` then `$kickoff` |
 | `codex-upgrade` | Runs `chezmoi update --apply` to pull the latest private dotfiles workflow |
@@ -222,26 +224,51 @@ codex-review
 
 Repeat until review has no blocking findings.
 
-## 9. Full Loop
+## 9. Stabilize When Review Keeps Finding Issues
+
+Use this when review keeps finding new problems and you want the review/fix/review cycle to happen in fresh sessions:
+
+```bash
+codex-stabilize
+```
+
+Default behavior:
+
+- runs 2 bounded rounds
+- each phase runs through a separate `codex exec --ephemeral` session
+- review output for each round goes under `ralph/stabilize/<timestamp>/`
+- fix issues go under `.scratch/*/review-fixes/*.md`
+- final review is saved to `ralph/review-findings.md`
+
+Run more rounds:
+
+```bash
+codex-stabilize --rounds 3
+```
+
+Run stabilization and then a ship-readiness pass:
+
+```bash
+codex-stabilize --ship
+```
+
+This is intentionally bounded. If review still finds real blockers after a few rounds, stop and inspect the recurring theme instead of running an infinite loop.
+
+## 10. Full Loop
 
 Typical project loop:
 
 ```bash
 codex-kickoff
 codex-afk
-codex-review
-codex-fix-issues
-codex-afk --issues ".scratch/*/review-fixes/*.md"
-codex-review
+codex-stabilize
 codex-ship
 ```
 
 If the final review still finds issues, repeat:
 
 ```bash
-codex-fix-issues
-codex-afk --issues ".scratch/*/review-fixes/*.md"
-codex-review
+codex-stabilize --rounds 3
 ```
 
 When review has no blocking findings:
@@ -250,7 +277,7 @@ When review has no blocking findings:
 codex-ship
 ```
 
-## 10. Git Save Points
+## 11. Git Save Points
 
 Use git as the safety net. If the repo is not initialized yet:
 
@@ -287,7 +314,7 @@ Create a private GitHub repo and push:
 gh repo create my-project --private --source=. --remote=origin --push
 ```
 
-## 11. Ship
+## 12. Ship
 
 After review has no Critical/High findings:
 
@@ -328,7 +355,7 @@ Custom ship report:
 codex-ship --out ralph/ship-readiness-round-2.md
 ```
 
-## 12. Sandbox Flow
+## 13. Sandbox Flow
 
 Use sandbox mode when you want a stronger safety boundary:
 
@@ -352,7 +379,7 @@ codex-afk
 codex-review
 ```
 
-## 13. Troubleshooting
+## 14. Troubleshooting
 
 Show all commands:
 
@@ -389,7 +416,7 @@ chezmoi diff
 chezmoi update --apply
 ```
 
-## 14. One-Line Reference
+## 15. One-Line Reference
 
 New machine:
 
@@ -412,10 +439,7 @@ codex-afk
 Review and fix:
 
 ```bash
-codex-review
-codex-fix-issues
-codex-afk --issues ".scratch/*/review-fixes/*.md"
-codex-review
+codex-stabilize
 codex-ship
 ```
 

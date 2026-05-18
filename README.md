@@ -54,6 +54,7 @@ Use this after workflow helper changes.
 | `codex-afk` | Implement ready issue files with one subagent at a time |
 | `codex-review` | Review completed work and save findings |
 | `codex-fix-issues` | Convert review findings into ready fix issues |
+| `codex-ship` | Prepare launch readiness and save a ship checklist |
 | `codex-upgrade` | Pull and apply latest dotfiles |
 | `sbx-yolo --check` | Verify Docker Sandboxes is usable |
 | `yolo-kickoff` | Start sandboxed full-auto Codex environment |
@@ -71,6 +72,7 @@ You normally type the short commands. The skill names below are what those comma
 | `codex-afk` | Starts Codex with an AFK prompt that resolves `.scratch/*/issues/*.md` using one subagent at a time |
 | `codex-review` | Starts Codex with `code-review-and-quality`, reviews specs/PRD/issues, runs checks, saves `ralph/review-findings.md` |
 | `codex-fix-issues` | Converts `ralph/review-findings.md` or fresh review findings into `.scratch/*/review-fixes/*.md` |
+| `codex-ship` | Starts Codex with `shipping-and-launch`, checks launch readiness, saves `ralph/ship-readiness.md`, and does not deploy |
 | `yolo-kickoff` | Starts Docker Sandboxes through `sbx-yolo`; inside the sandbox you run `codex --profile yolo` then `$kickoff` |
 | `codex-upgrade` | Runs `chezmoi update --apply` to pull the latest private dotfiles workflow |
 
@@ -231,6 +233,7 @@ codex-review
 codex-fix-issues
 codex-afk --issues ".scratch/*/review-fixes/*.md"
 codex-review
+codex-ship
 ```
 
 If the final review still finds issues, repeat:
@@ -239,6 +242,12 @@ If the final review still finds issues, repeat:
 codex-fix-issues
 codex-afk --issues ".scratch/*/review-fixes/*.md"
 codex-review
+```
+
+When review has no blocking findings:
+
+```bash
+codex-ship
 ```
 
 ## 10. Git Save Points
@@ -280,17 +289,21 @@ gh repo create my-project --private --source=. --remote=origin --push
 
 ## 11. Ship
 
-Before shipping:
+After review has no Critical/High findings:
 
 ```bash
-codex-review
+codex-ship
 ```
 
-Then start a shipping review:
+`codex-ship` uses the `shipping-and-launch` skill and writes:
 
-```bash
-codex -p local "Use the shipping-and-launch skill. Prepare this project for release. Review docs/specs/*.md, .scratch/*/PRD.md, issue files, README, env requirements, deploy steps, monitoring, rollback, and unresolved review findings. Do not deploy without asking."
+```text
+ralph/ship-readiness.md
 ```
+
+It checks README, env requirements, migrations, tests, deploy steps, monitoring, rollback, and unresolved review findings.
+
+It does **not** deploy, push, publish, create cloud resources, run Terraform apply, or spend money without explicit approval.
 
 Minimum ship checklist:
 
@@ -302,6 +315,18 @@ Minimum ship checklist:
 - README explains local run and production setup
 - deploy target is chosen
 - rollback plan exists
+
+Pure read-only ship check:
+
+```bash
+codex-ship --no-save
+```
+
+Custom ship report:
+
+```bash
+codex-ship --out ralph/ship-readiness-round-2.md
+```
 
 ## 12. Sandbox Flow
 
@@ -391,6 +416,7 @@ codex-review
 codex-fix-issues
 codex-afk --issues ".scratch/*/review-fixes/*.md"
 codex-review
+codex-ship
 ```
 
 Upgrade workflow:

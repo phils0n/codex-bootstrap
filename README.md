@@ -73,7 +73,7 @@ You normally type the short commands. The skill names below are what those comma
 | `codex-afk` | Starts Codex with an AFK prompt that resolves `.scratch/*/issues/*.md` using one subagent at a time |
 | `codex-review` | Starts Codex with `code-review-and-quality`, reviews specs/PRD/issues, runs checks, saves `ralph/review-findings.md` |
 | `codex-fix-issues` | Converts `ralph/review-findings.md` or fresh review findings into `.scratch/*/review-fixes/*.md` |
-| `codex-stabilize` | Runs each phase in a fresh `codex exec --ephemeral` session: review, create fix issues, AFK fixes, repeat, final review |
+| `codex-stabilize` | Runs each phase in a fresh `codex exec --ephemeral` session until review has no Critical/High findings or the cap is reached |
 | `codex-ship` | Starts Codex with `shipping-and-launch`, checks launch readiness, saves `ralph/ship-readiness.md`, and does not deploy |
 | `yolo-kickoff` | Starts Docker Sandboxes through `sbx-yolo`; inside the sandbox you run `codex --profile yolo` then `$kickoff` |
 | `codex-upgrade` | Runs `chezmoi update --apply` to pull the latest private dotfiles workflow |
@@ -234,16 +234,17 @@ codex-stabilize
 
 Default behavior:
 
-- runs 2 bounded rounds
+- runs until review reports zero Critical and zero High findings
+- stops after 5 fix rounds if blockers keep coming back
 - each phase runs through a separate `codex exec --ephemeral` session
 - review output for each round goes under `ralph/stabilize/<timestamp>/`
 - fix issues go under `.scratch/*/review-fixes/*.md`
 - final review is saved to `ralph/review-findings.md`
 
-Run more rounds:
+Set a tighter or looser cap:
 
 ```bash
-codex-stabilize --rounds 3
+codex-stabilize --max-rounds 3
 ```
 
 Run stabilization and then a ship-readiness pass:
@@ -252,7 +253,14 @@ Run stabilization and then a ship-readiness pass:
 codex-stabilize --ship
 ```
 
-This is intentionally bounded. If review still finds real blockers after a few rounds, stop and inspect the recurring theme instead of running an infinite loop.
+The stop condition comes from the review artifact:
+
+```text
+Review Gate:
+- Blocks ship: no
+```
+
+This is intentionally capped. If review still finds real blockers after several rounds, inspect the recurring theme instead of running an infinite loop.
 
 ## 10. Full Loop
 
@@ -268,7 +276,7 @@ codex-ship
 If the final review still finds issues, repeat:
 
 ```bash
-codex-stabilize --rounds 3
+codex-stabilize --max-rounds 3
 ```
 
 When review has no blocking findings:

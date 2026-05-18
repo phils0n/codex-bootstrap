@@ -157,10 +157,12 @@ codex-review
 - `docs/specs/*.md`
 - `.scratch/*/PRD.md`
 - `.scratch/*/issues/*.md`
+- `.scratch/*/review-fixes/*.md`
 
 It checks for:
 
 - bugs
+- open Critical/High review-fix issues
 - missing acceptance criteria
 - test gaps
 - security issues
@@ -339,6 +341,8 @@ ralph/ship-readiness.md
 It checks README, env requirements, migrations, tests, deploy steps, monitoring, rollback, and unresolved review findings.
 
 It does **not** deploy, push, publish, create cloud resources, run Terraform apply, or spend money without explicit approval.
+
+`codex-ship` can still say `not ready` after `codex-stabilize` passes. That usually means the remaining blockers are release/environment blockers, not AFK implementation blockers: missing git baseline, missing secrets, unavailable network, unavailable provider registry, missing local services, or no deploy target.
 
 Minimum ship checklist:
 
